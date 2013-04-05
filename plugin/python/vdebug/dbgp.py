@@ -425,12 +425,12 @@ class Connection:
 
         self.isconned = 1
         serv.close()
-    
+
     def listen(self, serv, timeout):
         """Non-blocking listener. Provides support for keyboard interrupts from
-        the user. Although it's non-blocking, the user interface will still 
+        the user. Although it's non-blocking, the user interface will still
         block until the timeout is reached.
-        
+
         serv -- Socket server to listen to.
         timeout -- Seconds before timeout.
         """
@@ -464,7 +464,10 @@ class Connection:
                 self.close()
                 raise EOFError('Socket Closed')
             if c == '\0':
-                return int(length)
+                if len(length) == 0:
+                    return 0
+                else:
+                    return int(length)
             if c.isdigit():
                 length = length + c
 
@@ -495,7 +498,7 @@ class Connection:
 
     def recv_msg(self):
         """Receive a message from the debugger.
-        
+
         Returns a string, which is expected to be XML.
         """
         length = self.__recv_length()
