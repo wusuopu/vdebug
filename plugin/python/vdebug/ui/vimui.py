@@ -461,6 +461,14 @@ class StatusWindow(Window):
         output += "Press %s to start debugging, " %(keys.run_key())
         output += "%s to stop/close. " %(keys.close_key())
         output += "Type :help Vdebug for more information."
+        leader_key = vim.eval("g:vdebug_leader_key")
+        keymap = vim.eval("g:vdebug_keymap_defaults")
+        output += "\n\nKeymap:\n"
+        for key in keymap:
+            if key == "run":
+                output += "%s: %s\n" %(key, keymap[key])
+            else:
+                output += "%s: %s%s\n" %(key, leader_key, keymap[key])
 
         self.write(output)
 

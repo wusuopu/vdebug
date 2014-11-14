@@ -69,7 +69,7 @@ if !exists("g:vdebug_leader_key")
 endif
 
 let g:vdebug_keymap_defaults = {
-\    "run" : "<F5>",
+\    "run" : "<F6>dbgp",
 \    "run_to_cursor" : "<F9>",
 \    "step_over" : "<F2>",
 \    "step_into" : "<F3>",
@@ -83,7 +83,7 @@ let g:vdebug_keymap_defaults = {
 \}
 
 let g:vdebug_options_defaults = {
-\    "port" : 9000,
+\    "port" : 9010,
 \    "timeout" : 20,
 \    "server" : 'localhost',
 \    "on_close" : 'detach',
