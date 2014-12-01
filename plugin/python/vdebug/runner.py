@@ -8,6 +8,9 @@ import vim
 import vdebug.breakpoint
 import vdebug.opts
 import vdebug.util
+import os
+import json
+import re
 
 class Runner:
     """ Class that stitches together all the debugger components.
@@ -274,6 +277,52 @@ class Runner:
                         timeout,vdebug.util.InputStream())
 
                 self.api = vdebug.dbgp.Api(connection)
+
+                # 过滤一些调试内容
+                filter_test_file = os.path.join(os.environ['HOME'], '.vim_dbgp_filter')
+                if os.path.exists(filter_test_file):
+                    try:
+                        with open(filter_test_file) as fp:
+                            filter_test = json.load(fp)
+                        if 'only' in filter_test:
+                            only_filter = filter_test['only']
+                        else:
+                            only_filter = []
+                        is_only = True
+                        for only in only_filter:
+                            filter_context = self.api.eval(only['value']).get_context()
+                            if filter_context:
+                                filter_context = filter_context[0]
+                                filter_language = filter_context.language
+                                filter_value = filter_context.value.strip('` ')
+                                if filter_language == only['language'] and not re.findall(only['pattern'], filter_value):
+                                    print 'not match only', only['pattern'], filter_value
+                                    self.api.detach()
+                                    is_only = False
+                                    break
+                        if not is_only:
+                            continue
+                        if 'exclude' in filter_test:
+                            exclude_filter = filter_test['exclude']
+                        else:
+                            exclude_filter = []
+                        is_exclude = False
+                        for exclude in exclude_filter:
+                            filter_context = self.api.eval(exclude['value']).get_context()
+                            if filter_context:
+                                filter_context = filter_context[0]
+                                filter_language = filter_context.language
+                                filter_value = filter_context.value.strip('` ')
+                                if filter_language == exclude['language'] and re.findall(exclude['pattern'], filter_value):
+                                    print 'match exclude', exclude['pattern'], filter_value
+                                    self.api.detach()
+                                    is_exclude = True
+                                    break
+                        if is_exclude:
+                            continue
+                    except Exception, e:
+                        print e
+
                 if check_ide_key and ide_key != self.api.idekey:
                     print "Ignoring debugger connection with IDE key '%s'" \
                             % self.api.idekey
