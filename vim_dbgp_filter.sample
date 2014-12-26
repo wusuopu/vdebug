@@ -1,0 +1,5 @@
+{
+    "only": [
+      {"value": "$_SERVER['REQUEST_URI']", "pattern": "user", "language": "php"},
+    ]
+}
